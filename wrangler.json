@@ -1,0 +1,6 @@
+{
+"name": "vibe-j2team-dev",
+  "pages": {
+    "build_output_dir": "dist"
+  }
+}
