@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import { REPO_URL } from '@/data/constants'
+</script>
+
 <template>
   <header class="relative max-w-5xl mx-auto px-4 sm:px-6 pt-20 pb-16">
     <!-- Issue badge -->
@@ -34,12 +38,26 @@
     </div>
 
     <!-- CTA -->
-    <a
-      href="#cach-tham-gia"
-      class="inline-block mt-8 border border-accent-coral bg-accent-coral/10 px-6 py-3 font-display font-semibold text-accent-coral tracking-wide transition-all duration-300 hover:bg-accent-coral hover:text-bg-deep animate-fade-up animate-delay-4"
-    >
-      Tham gia ngay
-    </a>
+    <div class="mt-8 flex flex-wrap items-center gap-4 animate-fade-up animate-delay-4">
+      <a
+        href="#cach-tham-gia"
+        class="inline-block border border-accent-coral bg-accent-coral/10 px-6 py-3 font-display font-semibold text-accent-coral tracking-wide transition-all duration-300 hover:bg-accent-coral hover:text-bg-deep"
+      >
+        Tham gia ngay
+      </a>
+      <a
+        :href="REPO_URL"
+        target="_blank"
+        rel="noopener noreferrer nofollow"
+      >
+        <img
+          alt="GitHub Repo stars"
+          src="https://img.shields.io/github/stars/J2TEAM/vibe.j2team.org?style=for-the-badge&logo=github&label=Stars"
+          loading="lazy"
+          class="h-[46px]"
+        >
+      </a>
+    </div>
 
     <!-- Dot divider -->
     <div class="mt-12 flex flex-wrap gap-1.5 animate-fade-up animate-delay-5">
