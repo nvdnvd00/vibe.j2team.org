@@ -81,13 +81,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { useGameEngine } from './useGameEngine'
-import { MIN_ANGLE, MAX_ANGLE } from './constants'
-import MenuScreen from './MenuScreen.vue'
-import GameHud from './GameHud.vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { MAX_ANGLE, MIN_ANGLE } from './constants'
 import GameControls from './GameControls.vue'
+import GameHud from './GameHud.vue'
 import GameOverlay from './GameOverlay.vue'
+import MenuScreen from './MenuScreen.vue'
+import { useGameEngine } from './useGameEngine'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 
@@ -169,19 +169,23 @@ function onMouseUp() {
 
 function onTouchStart(e: TouchEvent) {
   if (isFiring.value) return
+  const touch = e.touches[0]
+  if (!touch) return
   isDragging = true
-  dragStartY = e.touches[0].clientY
+  dragStartY = touch.clientY
 }
 
 function onTouchMove(e: TouchEvent) {
   if (!isDragging) return
-  const dy = dragStartY - e.touches[0].clientY
+  const touch = e.touches[0]
+  if (!touch) return
+  const dy = dragStartY - touch.clientY
   const newAngle = Math.round(
     Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, playerAngle.value + dy * 0.3)),
   )
   playerAngle.value = newAngle
   updateBarrelAngle(newAngle)
-  dragStartY = e.touches[0].clientY
+  dragStartY = touch.clientY
 }
 
 function onTouchEnd() {

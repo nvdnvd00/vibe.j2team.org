@@ -143,8 +143,8 @@ export function useGameEngine() {
     const rightX = Math.min(canvasWidth - 1, Math.floor(tankX + TERRAIN_SLOPE_RANGE))
     if (leftX >= rightX) return 0
 
-    const leftY = surfaceCache[leftX]
-    const rightY = surfaceCache[rightX]
+    const leftY = surfaceCache[leftX] ?? canvasHeight
+    const rightY = surfaceCache[rightX] ?? canvasHeight
     // Positive slope = terrain goes DOWN to the right (tank tilts right)
     // Negative slope = terrain goes UP to the right (tank tilts left)
     const slopeRad = Math.atan2(rightY - leftY, rightX - leftX)
@@ -202,19 +202,19 @@ export function useGameEngine() {
 
     // Clamp surface heights
     for (let x = 0; x < width; x++) {
-      surface[x] = Math.max(height * 0.15, Math.min(height * 0.82, surface[x]))
+      surface[x] = Math.max(height * 0.15, Math.min(height * 0.82, surface[x]!))
     }
 
     // Light smoothing (2 passes - keep some roughness unlike the old terrain)
     for (let pass = 0; pass < 2; pass++) {
       for (let i = 1; i < width - 1; i++) {
-        surface[i] = surface[i] * 0.6 + (surface[i - 1] + surface[i + 1]) * 0.2
+        surface[i] = surface[i]! * 0.6 + (surface[i - 1]! + surface[i + 1]!) * 0.2
       }
     }
 
     // Step 2: Fill bitmap - everything below surface = solid
     for (let x = 0; x < width; x++) {
-      const sy = Math.floor(surface[x])
+      const sy = Math.floor(surface[x]!)
       for (let y = sy; y < height; y++) {
         bitmap[y * width + x] = 1
       }
@@ -224,7 +224,7 @@ export function useGameEngine() {
     // Small pockmarks on the surface
     for (let i = 0; i < Math.floor(width * 0.03); i++) {
       const cx = Math.floor(Math.random() * width)
-      const sy = Math.floor(surface[cx])
+      const sy = Math.floor(surface[cx]!)
       const r = 2 + Math.random() * 4
       for (let dy = -r; dy <= r; dy++) {
         for (let dx = -r; dx <= r; dx++) {
@@ -261,8 +261,8 @@ export function useGameEngine() {
     const leftX = Math.floor(canvasWidth * 0.1 + Math.random() * canvasWidth * 0.1)
     const rightX = Math.floor(canvasWidth * 0.8 + Math.random() * canvasWidth * 0.1)
 
-    const leftSurface = surfaceCache[leftX]
-    const rightSurface = surfaceCache[rightX]
+    const leftSurface = surfaceCache[leftX] ?? canvasHeight
+    const rightSurface = surfaceCache[rightX] ?? canvasHeight
 
     playerTank = {
       x: leftX,
@@ -301,8 +301,8 @@ export function useGameEngine() {
     if (targetX === currentFloorX) return true // At edge of map
 
     const actualDist = Math.abs(targetX - currentFloorX)
-    const currentSurface = surfaceCache[currentFloorX]
-    const targetSurface = surfaceCache[targetX]
+    const currentSurface = surfaceCache[currentFloorX] ?? canvasHeight
+    const targetSurface = surfaceCache[targetX] ?? canvasHeight
 
     if (targetSurface >= canvasHeight) return true // Hole in the ground
 
@@ -342,7 +342,7 @@ export function useGameEngine() {
     const floorX = Math.floor(newX)
     if (floorX < 0 || floorX >= canvasWidth) return
 
-    const newSurface = surfaceCache[floorX]
+    const newSurface = surfaceCache[floorX] ?? canvasHeight
     if (newSurface >= canvasHeight) return // no ground
 
     activeTank.x = newX
@@ -432,7 +432,7 @@ export function useGameEngine() {
         vy: Math.sin(angle) * speed - 2,
         life: 40 + Math.random() * 20,
         maxLife: 60,
-        color: colors[Math.floor(Math.random() * colors.length)],
+        color: colors[Math.floor(Math.random() * colors.length)]!,
         size: Math.random() * 5 * radiusMultiplier + 2,
       })
     }
@@ -490,7 +490,7 @@ export function useGameEngine() {
   function applyTankGravity(tank: Tank | null) {
     if (!tank) return
     const floorX = Math.max(0, Math.min(canvasWidth - 1, Math.floor(tank.x)))
-    const newSurface = surfaceCache[floorX]
+    const newSurface = surfaceCache[floorX] ?? canvasHeight
 
     // Tank should sit on the surface
     const targetY = newSurface - TANK_HEIGHT / 2
@@ -830,6 +830,7 @@ export function useGameEngine() {
         const affordables = WEAPONS.filter((w) => w.id !== 'standard' && w.staminaCost <= botStam)
         if (affordables.length > 0) {
           const wp = affordables[Math.floor(Math.random() * affordables.length)]
+          if (!wp) continue
           botWeapons.push(wp.id)
           botStam -= wp.staminaCost
         }
@@ -859,7 +860,7 @@ export function useGameEngine() {
 
           const floorX = Math.floor(testX)
           if (floorX < 0 || floorX >= canvasWidth) continue
-          const testY = surfaceCache[floorX] - TANK_HEIGHT / 2
+          const testY = (surfaceCache[floorX] ?? canvasHeight) - TANK_HEIGHT / 2
           if (testY >= canvasHeight) continue
 
           const testFacing = playerTank.x > testX
@@ -893,7 +894,7 @@ export function useGameEngine() {
         const dxStep = dir === 'right' ? MOVE_SPEED : -MOVE_SPEED
         botTank.x += dxStep
         const floorX = Math.floor(botTank.x)
-        botTank.y = surfaceCache[floorX] - TANK_HEIGHT / 2
+        botTank.y = (surfaceCache[floorX] ?? canvasHeight) - TANK_HEIGHT / 2
         botTank.facingRight = dir === 'right'
         setTimeout(moveAndFire, 20) // Smooth movement
       } else {
@@ -951,8 +952,8 @@ export function useGameEngine() {
     const leftX = Math.max(0, Math.floor(tankX - TERRAIN_SLOPE_RANGE))
     const rightX = Math.min(canvasWidth - 1, Math.floor(tankX + TERRAIN_SLOPE_RANGE))
     if (leftX >= rightX) return 0
-    const leftY = surfaceCache[leftX]
-    const rightY = surfaceCache[rightX]
+    const leftY = surfaceCache[leftX] ?? canvasHeight
+    const rightY = surfaceCache[rightX] ?? canvasHeight
     return Math.atan2(rightY - leftY, rightX - leftX)
   }
 

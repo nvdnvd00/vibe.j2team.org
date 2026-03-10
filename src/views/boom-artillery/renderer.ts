@@ -153,7 +153,7 @@ export function drawTerrain(
   let prevSurfaceY = -1
 
   for (let x = 0; x < w; x++) {
-    const surfaceY = surfaceMap[x]
+    const surfaceY = surfaceMap[x] ?? -1
     if (surfaceY >= 0) {
       // Connect surface top line
       if (!drawing) {
@@ -559,9 +559,11 @@ export function drawProjectile(ctx: CanvasRenderingContext2D, proj: Projectile) 
   // Trail
   for (let i = 0; i < proj.trail.length; i++) {
     const alpha = i / proj.trail.length
+    const point = proj.trail[i]
+    if (!point) continue
     ctx.fillStyle = `${trailColors[0]}, ${alpha * 0.6})`
     ctx.beginPath()
-    ctx.arc(proj.trail[i].x, proj.trail[i].y, (2 + alpha * 2) * sizeMult, 0, Math.PI * 2)
+    ctx.arc(point.x, point.y, (2 + alpha * 2) * sizeMult, 0, Math.PI * 2)
     ctx.fill()
   }
 
